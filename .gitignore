@@ -1,0 +1,6 @@
+# env files
+.ipynb_checkpoints
+
+# files
+_model.*
+_book.*
