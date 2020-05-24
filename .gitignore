@@ -2,5 +2,5 @@
 .ipynb_checkpoints
 
 # files
-_model.*
-_book.*
+_model*
+_book*
