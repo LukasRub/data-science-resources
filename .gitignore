@@ -1,6 +1,14 @@
-# env files
-.ipynb_checkpoints
+# Environment files
+.ipynb_checkpoints/
+.vscode/
 
-# files
+# Caches
+__pycache__/
+__init__.py
+
+# API key .yml files
+api_keys.yml
+
+# Various files
 _model*
 _book*
