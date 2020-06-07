@@ -98,7 +98,10 @@ if __name__  == '__main__':
     raw_labels = raw_labels.drop_duplicates('postID', keep='last')
     print('Annotations after dropping duplicates...', len(raw_labels))
     raw_labels = simplify_event_ids(raw_labels)
-    post_categories = raw_labels.copy()[['postID', 'postCategories']]
+
+    # Copy un-processed categories
+    _cols = ['eventType', 'eventID',  'postID', 'postCategories']
+    post_categories = raw_labels.copy()[_cols]
 
     print('Joining with topics file...')
     topics_path = 'data/raw/TRECIS-2018-2019.topics.xml'
@@ -125,11 +128,11 @@ if __name__  == '__main__':
     print(f'{len(labels)} annotations available')
 
     # Drop non-english tweets
-    print('Dropping non-english tweets...')
-    lang_en = raw_tweets.lang == 'en'
-    print(f'{len(raw_tweets[~lang_en])} non-english tweets found')
-    raw_tweets = raw_tweets[lang_en]
-    labels = labels[labels.postID.isin(raw_tweets.id.astype(np.str_))]
+    # print('Dropping non-english tweets...')
+    # lang_en = raw_tweets.lang == 'en'
+    # print(f'{len(raw_tweets[~lang_en])} non-english tweets found')
+    # raw_tweets = raw_tweets[lang_en]
+    # labels = labels[labels.postID.isin(raw_tweets.id.astype(np.str_))]
 
     # Check if no irrelevant tweets were downloaded
     print('Dropping unannotated tweets...')

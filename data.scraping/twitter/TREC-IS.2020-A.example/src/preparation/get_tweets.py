@@ -57,7 +57,8 @@ class TweetViewer(object):
         return auth
     
     def __timeout(self):
-        epsilon = 5  # Addtional seconds to sleep before requesting rate limit status agin
+        epsilon = 5  # addtional seconds to sleep before requesting rate limit 
+                     # status again in order to circumvent rounding errors
         sleep_for = (self.rate_limit_status['reset'] 
                      - int(np.floor(time.time()))
                      + epsilon)
