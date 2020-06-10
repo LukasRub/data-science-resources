@@ -9,6 +9,9 @@ __init__.py
 # API key .yml files
 api_keys.yml
 
+# Data
+*.jsonl
+
 # Various files
 _model*
 _book*
