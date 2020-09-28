@@ -9,6 +9,9 @@ __init__.py
 # API key .yml files
 api_keys.yml
 
+# Nested repositories
+book.solutions/book.solutions/An.Introduction.to.Statistics.with.Python/statsintro_python/
+
 # Data
 *.jsonl
 
