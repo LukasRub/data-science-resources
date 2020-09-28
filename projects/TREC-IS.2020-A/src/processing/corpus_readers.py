@@ -8,7 +8,7 @@ DOC_PATTERN = r'.*.jsonl'
 ATTRIBS = ['full_text']
 
 
-class TRECISTweetCorpusReader(CategorizedCorpusReader, TwitterCorpusReader):
+class TweepyRawCorpusReader(CategorizedCorpusReader, TwitterCorpusReader):
     """
     A corpus reader for raw line-delimited JSON documents (Tweets)
     to enable preprocessing.
@@ -43,39 +43,111 @@ class TRECISTweetCorpusReader(CategorizedCorpusReader, TwitterCorpusReader):
         # Save the Tweet attributes that we specifically want to extract.
         self.attribs = attribs
         
-        
         # Store fileids of a singled-out category since Tweets are duplicated 
         # across categories (with only ``target`` attribute values as different)
-        self.single_cat = self.fileids(categories='Advice')
-        
+        # self.single_cat = self.fileids(categories='Advice')
+      
     
-    def strings(self, fileids=None):
+    def strings(self, fileids=None, categories=None):
         """
         Returns only the text content of Tweets in the file(s)
 
         Overrides TwitterCorpusReader.strings method to return 
-        'full_text' attribute of a Tweet instead of ``text``
+        'full_text' attribute of a Tweet instead of ``text`` to
+        accommodate changes to raw data retriewed by Tweepy library
 
-        :return: the given file(s) as a list of Tweets.
+        :return: the given file(s) as a list of Tweet text strings.
         :rtype: list(str)
         """
-        if fileids is None:
-            fileids = self.single_cat
+        fileids = self.resolve(fileids, categories)
             
-        fulltweets = self.docs(fileids)
+        full_tweets = self.docs(fileids)
         tweets = []
         
-        for jsono in fulltweets:
+        for jsono in full_tweets:
             try:
+                # If a retweet, remove the 'RT @<handle>' string literal
                 text = jsono['full_text']
                 if isinstance(text, bytes):
                     text = text.decode(self.encoding)
                 tweets.append(text)
             except KeyError:
-                pass
+                tweets.append('') 
             
         return tweets
+
+
+    def target(self, fileids=None, categories=None):
+        """
+        Returns a list of only the binary target value of Tweets, to be interpreted
+        as do they belong to the particular category in the context of docs supplied
+        in the fileids or categories parameters.
+
+        :return: a list of binary values to determine if the Tweets belong in their 
+                 particular category given the fileids or categories.
+        :rtype: list
+        """
+        
+        fileids = self.resolve(fileids, categories)
+            
+        full_tweets = self.docs(fileids)
+        target_labels = []
+        
+        for jsono in full_tweets:
+            try:
+                target = jsono['target']
+                if not isinstance(target, int):
+                    target = int(target)
+                target_labels.append(target)
+            except KeyError:
+                pass
+            
+        return target_labels
     
+    
+    def labels(self, fileids=None, categories=None):
+        """
+        Returns a list of all target labels assigned Tweets in docs that are 
+        supplied by the the fileids or categories parameters.
+
+        :return: all labels (categories) assigned to Tweets in particular fileids
+                 or categories.
+        :rtype: list
+        """
+        
+        fileids = self.resolve(fileids, categories)
+            
+        full_tweets = self.docs(fileids)
+        target_labels = []
+        
+        for jsono in full_tweets:
+            try:
+                target = jsono['labels']
+                if not isinstance(target, list):
+                    target = list(target)
+                target_labels.append(target)
+            except KeyError:
+                pass
+            
+        return target_labels
+
+
+    def quoted_status_indicators(self, fileids=None, categories=None):
+        fileids = self.resolve(fileids, categories or self.single_cat)
+
+        full_tweets = self.docs(fileids)
+        quoted_status_indicators = []
+        
+        for jsono in full_tweets:
+            try:
+                is_quoted_status = jsono['is_quoted_status']
+                quoted_status = jsono['quoted_status']
+                target_labels.append(is_quoted_status and quoted_status)
+            except KeyError:
+                pass
+            
+        return quoted_status_indicators
+
     
     def resolve(self, fileids=None, categories=None):
         """
@@ -83,9 +155,10 @@ class TRECISTweetCorpusReader(CategorizedCorpusReader, TwitterCorpusReader):
         to each internal corpus reader function. Implemented similarly to
         the NLTK ``CategorizedPlaintextCorpusReader``.
         """
+        
         if fileids is not None and categories is not None:
             raise ValueError('Specify fileids or categories, not both')
-            
+        
         if categories is not None:
             return self.fileids(categories)
         
