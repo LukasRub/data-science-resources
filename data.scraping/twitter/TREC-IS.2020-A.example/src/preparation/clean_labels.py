@@ -4,7 +4,7 @@ import re
 import os
 
 from xml_parsing import XMLTopicsParser
-from get_tweets import TweetViewer
+from get_tweets import TweetViewer, yeld_chunks
 from get_tweets import make_chunks
 
 
@@ -74,7 +74,7 @@ def encode_post_categories(labels: pd.DataFrame) -> (pd.DataFrame, pd.DataFrame)
     return labels, one_hot_categories
 
 
-def download_tweets(labels: pd.DataFrame, api_keys_path: str) -> pd.DataFrame():
+def download_tweets(labels, api_keys_path):
     tweet_viewer = TweetViewer(api_keys_path=api_keys_path)
     tweets = []
     for labels_chunk in make_chunks(labels):
