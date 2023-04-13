@@ -14,6 +14,7 @@ book.solutions/An.Introduction.to.Statistics.with.Python/statsintro_python/
 
 # Data
 *.jsonl
+*.mp4
 
 # Various files
 _model*
